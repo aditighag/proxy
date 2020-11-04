@@ -3,7 +3,7 @@
 # Copyright 2020 Authors of Cilium
 # SPDX-License-Identifier: Apache-2.0
 
-ARG COMPILERS_IMAGE=docker.io/cilium/image-compilers:32a185376865d6cb0f82d7339e311d998ab859c1
+ARG COMPILERS_IMAGE=docker.io/cilium/image-compilers:07ffd7516e5af3a4b369f676b893be6305ad75f6
 
 FROM --platform=linux/amd64 ${COMPILERS_IMAGE} as builder
 ARG TARGETPLATFORM
@@ -16,7 +16,7 @@ RUN --mount=type=bind,readwrite,target=/src \
   make cilium-envoy install \
   BAZEL_BUILD_OPTS="${BAZEL_BUILD_OPTS}" \
   PKG_BUILD=1 \
-  DESTDIR=/out/linux/amd64
+  DESTDIR=/out/linux/amd64 || sleep 15000
 
 RUN --mount=type=bind,readwrite,target=/src \
   make cilium-envoy install \
