@@ -8,7 +8,7 @@ ARG COMPILERS_IMAGE=docker.io/cilium/image-compilers:07ffd7516e5af3a4b369f676b89
 FROM --platform=linux/amd64 ${COMPILERS_IMAGE} as builder
 ARG TARGETPLATFORM
 
-ARG BAZEL_BUILD_OPTS="--jobs=auto --experimental_local_memory_estimate --local_cpu_resources=HOST_CPUS*0.6 --verbose_failures --sandbox_debug"
+ARG BAZEL_BUILD_OPTS="--jobs=auto --experimental_local_memory_estimate --verbose_failures --sandbox_debug"
 
 WORKDIR /src
 
