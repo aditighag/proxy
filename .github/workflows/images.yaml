@@ -30,6 +30,47 @@ jobs:
     runs-on: ubuntu-18.04
     needs: lint
     steps:
+      - name: Reclaim disk space for Bazel
+        run: |
+          df -h /
+
+          apt-cache pkgnames > /tmp/packages
+          for i in '^php' '^clang' '^llvm' '^lld' '^dotnet' '^libmono' '^aspnetcore' '^mongodb' '^mysql' '^postgresql' '^r-' '^ruby-' '^adoptopenjdk-' '^imagemagick' '^gcc' '^g++' '^gfortran' '^ghc' '^firefox' ; do
+            grep "${i}" /tmp/packages | xargs sudo apt-get remove --quiet --yes || true
+          done
+
+          sudo apt-get remove --quiet --yes build-essential buildah sbt skopeo
+
+          dpkg -l | grep "^rc" | awk '{print $2}' | xargs sudo dpkg --purge || true
+
+          sudo apt-get clean
+          sudo apt-get autoremove
+
+          # print remaining packages for inspection
+          dpkg -l
+
+          sudo rm -rf /usr/local /opt/microsoft /opt/google /opt/ghc /opt/cabal /opt/mssql-tools /opt/hhvm /opt/AGPM /opt/az
+
+          df -h /
+
+          # there's more space in /mnt with 4GB used by swapfile
+          # sudo swapoff -a
+          # sudo rm -f /mnt/swapfile
+
+          docker container prune -f
+          docker volume prune -f
+          docker system prune -f
+
+          # print all images for inspection
+          docker image ls
+
+          for i in ubuntu:14.04 node:12-alpine node:10 node:10-alpine node:12 node:12-alpine buildpack-deps:stretch buildpack-deps:buster debian:8 debian:9 jekyll/builder:latest ; do
+            docker image rm -f "${i}" || true
+          done
+
+          docker image prune -f
+
+          df -h /
       - uses: actions/checkout@v1
       - uses: docker://docker.io/cilium/image-maker:bc81755ec8f6c5afcb10a416cef73f99a35fee2c
         name: Register binfmt from multi-platform builds
