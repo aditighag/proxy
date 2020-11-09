@@ -104,6 +104,14 @@ run_buildx() {
   else
     build_args+=("${root_dir}")
   fi
+  if [ -n "${BUILD_ARG+x}" ]  ; then
+    build_args+=("--build-arg=${BUILD_ARG}")
+  fi
+  if [ -n "${SECRET+x}" ]  ; then
+    for i in ${SECRET} ; do
+      build_args+=("--secret=${i}")
+    done
+  fi
   if [ "${do_test}" = "true" ] ; then
     if ! docker buildx build --target=test "${build_args[@]}" ; then
       exit 1

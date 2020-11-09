@@ -23,4 +23,9 @@ lint:
 .PHONY: cilium-envoy-image
 
 cilium-envoy-image: .buildx_builder
+	if [[ -n "$${GCP_SERVICE_ACCOUNT_KEY+x}" ]] ; then \
+	  echo "$${GCP_SERVICE_ACCOUNT_KEY}" | base64 -d > /tmp/gcp-service-account-key.json ;\
+	  export SECRET="id=gcp-service-account-key,src=/tmp/gcp-service-account-key.json" ;\
+	  export BUILD_ARG="BAZEL_BUILD_EXTRA_OPTS=--remote_cache=https://storage.googleapis.com/cilium-bazel-build-cache --google_credentials=gcp-service-account-key.json" ;\
+        fi ;\
 	ROOT_CONTEXT=true scripts/build-image.sh cilium-envoy-dev images/cilium-envoy linux/amd64,linux/arm64 $(OUTPUT) "$$(cat .buildx_builder)" $(REGISTRIES)
