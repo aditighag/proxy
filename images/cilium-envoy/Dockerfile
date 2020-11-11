@@ -6,7 +6,6 @@
 ARG COMPILERS_IMAGE=docker.io/cilium/image-compilers:07ffd7516e5af3a4b369f676b893be6305ad75f6
 
 FROM --platform=linux/amd64 ${COMPILERS_IMAGE} as builder
-ARG TARGETPLATFORM
 
 ARG BAZEL_BUILD_EXTRA_OPTS
 ARG BAZEL_BUILD_OPTS="--jobs=auto --experimental_local_memory_estimate --verbose_failures --disk_cache=/tmp/bazel-cache/cas --repository_cache=/tmp/bazel-cache/repository ${BAZEL_BUILD_EXTRA_OPTS}"
@@ -17,7 +16,7 @@ RUN --mount=type=bind,readwrite,target=/src --mount=type=secret,id=gcp-service-a
   make cilium-envoy install \
   BAZEL_BUILD_OPTS="${BAZEL_BUILD_OPTS}" \
   PKG_BUILD=1 \
-  DESTDIR=/out/linux/amd64 || sleep 15000
+  DESTDIR=/out/linux/amd64
 
 RUN --mount=type=bind,readwrite,target=/src --mount=type=secret,id=gcp-service-account-key,target=/src/gcp-service-account-key.json --mount=type=cache,id=bazel-cache,target=/tmp/bazel-cache \
   make cilium-envoy install \
