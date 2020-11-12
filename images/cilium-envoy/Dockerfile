@@ -18,6 +18,11 @@ RUN --mount=type=bind,readwrite,target=/src --mount=type=secret,id=gcp-service-a
   PKG_BUILD=1 \
   DESTDIR=/out/linux/amd64
 
+# otionally cleanup cached objects from disk since the amd64 objects cannot be re-used for cross-compilation
+ARG PRUNE_DISK_CACHE=false
+RUN --mount=type=bind,readwrite,target=/src --mount=type=secret,id=gcp-service-account-key,target=/src/gcp-service-account-key.json --mount=type=cache,id=bazel-cache,target=/tmp/bazel-cache \
+  test "${PRUNE_DISK_CACHE}" = "true" && ( df -h ; du -h /tmp/bazel-cache ; rm -rf /tmp/bazel-cache/cas )
+
 RUN --mount=type=bind,readwrite,target=/src --mount=type=secret,id=gcp-service-account-key,target=/src/gcp-service-account-key.json --mount=type=cache,id=bazel-cache,target=/tmp/bazel-cache \
   make cilium-envoy install \
   BAZEL_BUILD_OPTS="${BAZEL_BUILD_OPTS} --incompatible_enable_cc_toolchain_resolution --platforms=//bazel/platforms:aarch64_cross --define=cross=aarch64" \

@@ -89,6 +89,7 @@ jobs:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
           QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
           QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
+          PRUNE_DISK_CACHE: "true"
         with:
           entrypoint: make
           args: -C images cilium-envoy-image PUSH=true

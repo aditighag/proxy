@@ -104,13 +104,20 @@ run_buildx() {
   else
     build_args+=("${root_dir}")
   fi
-  if [ -n "${BUILD_ARG+x}" ]  ; then
-    build_args+=("--build-arg=${BUILD_ARG}")
+  # shellcheck disable=SC2153
+  if [ -n "${BUILD_ARGS+x}" ]  ; then
+    while read -r -d ';' i; do
+      if [ -n "${i+x}" ] ; then
+        build_args+=("--build-arg=${i}")
+      fi
+    done <<< "${BUILD_ARGS}"
   fi
-  if [ -n "${SECRET+x}" ]  ; then
-    for i in ${SECRET} ; do
-      build_args+=("--secret=${i}")
-    done
+  if [ -n "${SECRETS+x}" ]  ; then
+    while read -r -d ';' i; do
+      if [ -n "${i+x}" ] ; then
+        build_args+=("--secret=${i}")
+      fi
+    done <<< "${SECRETS}"
   fi
   if [ "${do_test}" = "true" ] ; then
     if ! docker buildx build --target=test "${build_args[@]}" ; then
