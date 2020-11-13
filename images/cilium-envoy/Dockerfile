@@ -8,7 +8,7 @@ ARG COMPILERS_IMAGE=docker.io/cilium/image-compilers:07ffd7516e5af3a4b369f676b89
 FROM --platform=linux/amd64 ${COMPILERS_IMAGE} as builder
 
 ARG BAZEL_BUILD_EXTRA_OPTS
-ARG BAZEL_BUILD_OPTS="--jobs=auto --experimental_local_memory_estimate --verbose_failures --disk_cache=/tmp/bazel-cache/cas --repository_cache=/tmp/bazel-cache/repository --spawn_strategy=local ${BAZEL_BUILD_EXTRA_OPTS}"
+ARG BAZEL_BUILD_OPTS="--jobs=auto --experimental_local_memory_estimate --verbose_failures --disk_cache=/tmp/bazel-cache/cas --repository_cache=/tmp/bazel-cache/repository --spawn_strategy=local --copt=-v ${BAZEL_BUILD_EXTRA_OPTS}"
 
 WORKDIR /src
 
