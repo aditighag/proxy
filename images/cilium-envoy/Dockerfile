@@ -25,7 +25,7 @@ RUN --mount=type=bind,readwrite,target=/src --mount=type=secret,id=gcp-service-a
 
 # output objects cannot be re-used in any way
 RUN --mount=type=bind,readwrite,target=/src --mount=type=secret,id=gcp-service-account-key,target=/src/gcp-service-account-key.json --mount=type=cache,id=bazel-cache,target=/tmp/bazel-cache \
-  bazel clean
+  df -h ; ls -la /src ; du -h -d 1 /src /root/.cache ; bazel clean --expunge ; df -h ; du -h -d 1 /src /root/.cache ; true ;
 
 RUN --mount=type=bind,readwrite,target=/src --mount=type=secret,id=gcp-service-account-key,target=/src/gcp-service-account-key.json --mount=type=cache,id=bazel-cache,target=/tmp/bazel-cache \
   make cilium-envoy install \
