@@ -13,6 +13,9 @@ ARG BAZEL_BUILD_OPTS="--jobs=auto --experimental_local_memory_estimate --verbose
 WORKDIR /src
 
 RUN --mount=type=bind,readwrite,target=/src --mount=type=secret,id=gcp-service-account-key,target=/src/gcp-service-account-key.json --mount=type=cache,id=bazel-cache,target=/tmp/bazel-cache \
+  df -h ; du -h -d 1 /tmp/bazel-cache
+
+RUN --mount=type=bind,readwrite,target=/src --mount=type=secret,id=gcp-service-account-key,target=/src/gcp-service-account-key.json --mount=type=cache,id=bazel-cache,target=/tmp/bazel-cache \
   make cilium-envoy install \
   BAZEL_BUILD_OPTS="${BAZEL_BUILD_OPTS}" \
   PKG_BUILD=1 \

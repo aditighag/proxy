@@ -32,14 +32,141 @@ jobs:
     steps:
       - name: Reclaim disk space for Bazel
         run: |
-          df -h /
+          set -x
 
-          apt-cache pkgnames > /tmp/packages
-          for i in '^php' '^clang' '^llvm' '^lld' '^dotnet' '^libmono' '^aspnetcore' '^mongodb' '^mysql' '^postgresql' '^r-' '^ruby-' '^adoptopenjdk-' '^imagemagick' '^gcc' '^g++' '^gfortran' '^ghc' '^firefox' ; do
-            grep "${i}" /tmp/packages | xargs sudo apt-get remove --quiet --yes || true
+          df -h
+          # sudo du -h -d 1 / || true
+          # sudo du -h -d 1 /usr || true
+          # sudo du -h -d 1 /usr/lib || true
+          # sudo du -h -d 1 /usr/bin || true
+          # sudo du -h -d 1 /usr/share || true
+          # sudo du -h -d 1 /opt || true
+
+          dpkg -l
+
+          dpkg -l | grep '^ii' | awk '{ print $2 }' > /tmp/packages
+
+          remove_packages=(
+            ant
+            aria2
+            azure-cli
+            brotli
+            btrfs-progs
+            btrfs-tools
+            build-essential
+            buildah
+            byobu
+            ca-certificates-java
+            cifs-utils
+            crda
+            dosfstools
+            eject
+            esl-erlang
+            ftp
+            geoip-database
+            google-chrome-stable
+            google-cloud-sdk
+            heroku
+            iw
+            java-common
+            kubectl
+            libc++-dev
+            libc-dev
+            logrotate
+            lshw
+            lsof
+            ltrace
+            lvm2
+            lxcfs
+            lxd
+            lynx
+            mercurial
+            mssql-tools
+            netplan.io
+            nplan
+            ntfs-3g
+            nuget
+            open-iscsi
+            open-vm-tools
+            p7zip
+            packages-microsoft-prod
+            parallel
+            parted
+            pastebinit
+            patchelf
+            patchelf
+            pciutils
+            podman
+            podman-plugins
+            popularity-contest
+            powershell
+            publicsuffix
+            rpm
+            rpm-common
+            rpm2cpio
+            rsync
+            samba-common
+            samba-common-bin
+            sbt
+            shellcheck
+            skopeo
+            slirp4netns
+            snapd
+            squashfs-tools
+            strace
+            subversion
+            tcpdump
+            tex-common
+            texinfo
+            tmux
+            usbutils
+            varlink
+            wireless-regdb
+            xfsprogs
+            xorriso
+            xtrans-dev
+            xvfb
+            yarn
+            zstd
+            zsync
+          )
+
+          remove_matching=(
+            '^adoptopenjdk-'
+            '^aspnetcore'
+            '^cabal-'
+            '^clang'
+            '^cpp'
+            '^dotnet'
+            '^emacs'
+            '^firebird'
+            '^firefox'
+            '^g++'
+            '^gcc'
+            '^gfortran'
+            '^ghc'
+            '^imagemagick'
+            '^libmono'
+            '^lld'
+            '^llvm'
+            '^mongodb'
+            '^mysql'
+            '^php'
+            '^postgresql'
+            '^r-'
+            '^ruby-'
+            '^tcl'
+            '^tk'
+            '^vim'
+            '^zulu-'
+          )
+
+          sudo apt-get remove --quiet --yes "${remove_packages[@]}" || echo "ERROR: failed to remove packages: ${remove_packages[@]}"
+
+          for i in "${remove_matching[@]}" ; do
+          grep "${i}" /tmp/packages | xargs sudo apt-get remove --quiet --yes || echo "ERROR: failed to remove packages matching: ${i}"
           done
 
-          sudo apt-get remove --quiet --yes build-essential buildah sbt skopeo
 
           dpkg -l | grep "^rc" | awk '{print $2}' | xargs sudo dpkg --purge || true
 
@@ -49,7 +176,24 @@ jobs:
           # print remaining packages for inspection
           dpkg -l
 
-          sudo rm -rf /usr/local /opt/microsoft /opt/google /opt/ghc /opt/cabal /opt/mssql-tools /opt/hhvm /opt/AGPM /opt/az
+          remove_dirs=(
+            /opt/AGPM
+            /opt/az
+            /opt/cabal
+            /opt/ghc
+            /opt/google
+            /opt/hhvm
+            /opt/hostedtoolcache
+            /opt/microsoft
+            /opt/mssql-tools
+            /usr/local
+            /usr/share/az_*
+            /usr/share/dotnet
+            /usr/share/rust
+            /usr/share/swift
+          )
+
+          sudo rm -rf "${remove_dirs[@]}"
 
           df -h /
 
@@ -58,6 +202,7 @@ jobs:
           # sudo rm -f /mnt/swapfile
 
           docker container prune -f
+
           docker volume prune -f
           docker system prune -f
 
@@ -71,6 +216,13 @@ jobs:
           docker image prune -f
 
           df -h /
+          # sudo du -h -d 1 / || true
+          # sudo du -h -d 1 /usr || true
+          # sudo du -h -d 1 /usr/lib || true
+          # sudo du -h -d 1 /usr/bin || true
+          # sudo du -h -d 1 /usr/share || true
+          # sudo du -h -d 1 /opt || true
+
       - uses: actions/checkout@v1
       - uses: docker://docker.io/cilium/image-maker:bc81755ec8f6c5afcb10a416cef73f99a35fee2c
         name: Register binfmt from multi-platform builds
