@@ -34,6 +34,8 @@ jobs:
         run: |
           set -x
 
+          dmesg
+
           df -h
           # sudo du -h -d 1 / || true
           # sudo du -h -d 1 /usr || true
@@ -245,3 +247,10 @@ jobs:
         with:
           entrypoint: make
           args: -C images cilium-envoy-image PUSH=true
+      - name: Post mortem
+        if: ${{ failure() }}
+        run: |
+          set -x
+          df -h
+          dmesg
+
