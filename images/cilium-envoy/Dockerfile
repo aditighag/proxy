@@ -32,7 +32,7 @@ RUN --mount=type=bind,readwrite,target=/src --mount=type=secret,id=gcp-service-a
 
 RUN --mount=type=bind,readwrite,target=/src --mount=type=secret,id=gcp-service-account-key,target=/src/gcp-service-account-key.json --mount=type=cache,id=bazel-cache,target=/tmp/bazel-cache \
   make cilium-envoy install \
-  BAZEL_BUILD_OPTS="${BAZEL_BUILD_OPTS} --incompatible_enable_cc_toolchain_resolution --platforms=//bazel/platforms:aarch64_cross --define=cross=aarch64" \
+  BAZEL_BUILD_OPTS="${BAZEL_BUILD_OPTS} --incompatible_enable_cc_toolchain_resolution --platforms=//bazel/platforms:aarch64_cross --define=cross=aarch64 --linkopt=\"--reduce-memory-overheads\"" \
   STRIP=aarch64-linux-gnu-strip \
   PKG_BUILD=1 \
   DESTDIR=/out/linux/arm64 || (df -h ; du -h /tmp/bazel-cache ; exit 1 )
